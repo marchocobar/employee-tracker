@@ -18,7 +18,7 @@ const db = mysql.createConnection(
     inquirer.prompt([
         {
             type: 'list',
-            name: 'choices',
+            name: 'options',
             message: 'What would you like to do?',
             choices: [
                 'View all departments',
@@ -34,5 +34,13 @@ const db = mysql.createConnection(
         }
     ])
     .then(answers)
+};
+
+const viewDepartments = () => {
+    inquirer.prompt([
+        {
+            type
+        }
+    ])
 }
   
