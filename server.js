@@ -88,20 +88,20 @@ const viewRoles = () => {
 
 const viewEmployees = () => {
     const mysql = `SELECT
-        employee.id,
-        employee.first_name,
-        employee.last_name,
-        role.title,
-        department.name,
-        role.salary,
-        CONCAT(employee.first_name, ' ', employee.last_name) AS manager
-    FROM employee
-        LEFT JOIN role
+    employee.id,
+    employee.first_name,
+    employee.last_name,
+    role.title,
+    department.name AS Department,
+    role.salary,
+    CONCAT(Manager.first_name, ' ', Manager.last_name) AS manager
+FROM employee
+    LEFT JOIN role
         ON employee.role_id = role.id
-        LEFT JOIN department
-        ON role.department_id = department_id
-        LEFT JOIN employee Manager
-        ON employee.manager_id = Manager.id`;
+    LEFT JOIN department
+        ON role.department_id = department.id
+    LEFT JOIN employee Manager
+        ON employee.manager_id = Manager.id;`;
 
     db.query(mysql, (err, rows) => {
         if (err) return console.log(err);
@@ -124,45 +124,94 @@ const addDepartment = () => {
         const params = answers.department;
         
     db.query(mysql, params, (err, rows) => {
-        if (err) return console.log(err);
+        if (err){
+            return console.log(err)
+        };
+
         console.table(rows);
+
         viewOptions();
     });
     });
 };
 
-// const addRole = () => {
-//     inquirer.prompt ([
-//         {
-//             type: 'input',
-//             name: 'role',
-//             message: 'Enter name of role',
-//         },
-//         {
-//             type: 'input',
-//             name: 'salary',
-//             message: 'Enter salary for role',
-//         },
-//         {
-//             type: 'list',
-//             name: 'departments',
-//             message: 'Which department is this role in?',
-//             choices: ['Marketing', 'Editorial', 'Sales']
-//         }
-//     ])
-//     .then((answers) => {
-//         const mysql = `INSERT INTO role (title, salary, department_id)
-//         VALUES(?, ?, ?)`;
-//         const params = [answers.role, answers.salary, answers.department]
+const addRole = () => {
+    inquirer.prompt ([
+        {
+            type: 'input',
+            name: 'role',
+            message: 'Enter name of role',
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Enter salary for role',
+        },
+        {
+            type: 'list',
+            name: 'departments',
+            message: 'Which department is this role in?',
+            choices: ['Marketing', 'Editorial', 'Sales']
+        }
+    ])
+    .then((answers) => {
+        const mysql = `INSERT INTO role (title, salary, department_id)
+        VALUES(?, ?, ?)`;
+        const params = [answers.role, answers.salary, answers.department]
         
-//     db.query(mysql, params, (err, rows) => {
-//         if (err) return console.log(err);
-//         console.table(rows);
-//         console.log('Role Added')
-//         viewRoles()
-//         viewOptions();
-//     })
-//     })
-// }
+    db.query(mysql, params, (err, rows) => {
+        if (err) return console.log(err);
+        console.table(rows);
+        console.log('Role Added')
+        viewRoles()
+        viewOptions();
+    })
+    })
+};
+
+const addEmployee = () => {
+    inquirer.prompt ([
+        {
+            type: 'input',
+            name: 'firstname',
+            message: 'First name of employee?',
+        },
+        {
+            type: 'input',
+            name: 'lastname',
+            message: 'Last name of employee?',
+        },
+        {
+            type: 'list',
+            name: 'role',
+            message: 'What is their role?',
+            choices: [],
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Who is their manager?',
+            choices: [],
+
+        }
+    ])
+};
+
+const updateEmployee = () => {
+    inquirer.prompt ([
+        {
+            type: 'list',
+            name: 'employee',
+            message: 'Which employee would you like to update?',
+            choices: [],
+        },
+        {
+            type: 'list',
+            name: 'newrole',
+            message: 'What is their new role?',
+            choices: [],
+        }
+    ])
+}
 
 viewOptions()
