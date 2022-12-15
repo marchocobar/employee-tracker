@@ -46,10 +46,10 @@ const viewOptions = () => {
                 case "Add department":
                     addDepartment();
                     break;
-                case "add role":
+                case "Add role":
                     addRole();
                     break;
-                case "add employee":
+                case "Add employee":
                     addEmployee();
                     break;
                 case "Update employee information":
@@ -113,9 +113,56 @@ const viewEmployees = () => {
 const addDepartment = () => {
     inquirer.prompt ([
         {
-
+            type: 'input',
+            name: 'department',
+            message: 'Enter new department',
         }
     ])
-}
+    .then((answers) => {
+        const mysql = `INSERT INTO department (name)
+        VALUES (?)`;
+        const params = answers.department;
+        
+    db.query(mysql, params, (err, rows) => {
+        if (err) return console.log(err);
+        console.table(rows);
+        viewOptions();
+    });
+    });
+};
+
+// const addRole = () => {
+//     inquirer.prompt ([
+//         {
+//             type: 'input',
+//             name: 'role',
+//             message: 'Enter name of role',
+//         },
+//         {
+//             type: 'input',
+//             name: 'salary',
+//             message: 'Enter salary for role',
+//         },
+//         {
+//             type: 'list',
+//             name: 'departments',
+//             message: 'Which department is this role in?',
+//             choices: ['Marketing', 'Editorial', 'Sales']
+//         }
+//     ])
+//     .then((answers) => {
+//         const mysql = `INSERT INTO role (title, salary, department_id)
+//         VALUES(?, ?, ?)`;
+//         const params = [answers.role, answers.salary, answers.department]
+        
+//     db.query(mysql, params, (err, rows) => {
+//         if (err) return console.log(err);
+//         console.table(rows);
+//         console.log('Role Added')
+//         viewRoles()
+//         viewOptions();
+//     })
+//     })
+// }
 
 viewOptions()
