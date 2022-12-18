@@ -1,6 +1,9 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+const employeeArr = [];
+const departmentArr = [];
+const roleArr = [];
 
 // Connect to database
 const db = mysql.createConnection(
@@ -57,6 +60,66 @@ const viewOptions = () => {
                     break;
             }
         })
+};
+
+const departmentChoices = () => {
+    const sql = `SELECT id AS value, name FROM department;`;
+
+    db.query(sql, (err, res) => {
+        if (err){
+            throw err;
+        }
+
+        for (var i = 0; i < res.length; i++) {
+
+            if (!departmentArr.includes(res[i].name)) {
+                departmentArr.push(res[i].name);
+            }; 
+        }
+    });
+     return departmentArr
+
+};
+
+const employeeChoices = () => {
+    const sql = `SELECT id AS value, CONCAT(first_name, " ", last_name) AS name FROM employee`;
+
+    db.query(sql, (err, res) => {
+        if (err){
+            throw err;
+        }
+
+        
+        for (var i = 0; i < res.length; i++) {
+
+            if (!employeeArr.includes(res[i].name)) {
+                employeeArr.push(res[i].name);
+            };
+
+        }
+    });
+
+    return employeeArr
+};
+
+const roleChoices = () => {
+    const sql = `SELECT id AS value, title FROM role;`;
+
+    db.query(sql, (err, res) => {
+        if (err){
+            throw err;
+        }
+
+        for (var i = 0; i < res.length; i++) {
+
+            if (!roleArr.includes(res[i].title)) {
+                roleArr.push(res[i].title);
+            };
+
+        }
+    });
+
+    return roleArr
 };
 
 const viewDepartments = () => {
@@ -149,15 +212,15 @@ const addRole = () => {
         },
         {
             type: 'list',
-            name: 'departments',
+            name: 'department',
             message: 'Which department is this role in?',
-            choices: ['Marketing', 'Editorial', 'Sales']
+            choices: departmentChoices(),
         }
     ])
     .then((answers) => {
         const mysql = `INSERT INTO role (title, salary, department_id)
         VALUES(?, ?, ?)`;
-        const params = [answers.role, answers.salary, answers.department]
+        const params = [answers.role, answers.salary, answers.department_id]
         
     db.query(mysql, params, (err, rows) => {
         if (err) return console.log(err);
@@ -185,13 +248,13 @@ const addEmployee = () => {
             type: 'list',
             name: 'role',
             message: 'What is their role?',
-            choices: [],
+            choices: roleChoices(),
         },
         {
             type: 'list',
             name: 'manager',
             message: 'Who is their manager?',
-            choices: [],
+            choices: employeeChoices(),
 
         }
     ])
@@ -203,13 +266,13 @@ const updateEmployee = () => {
             type: 'list',
             name: 'employee',
             message: 'Which employee would you like to update?',
-            choices: [],
+            choices: employeeChoices(),
         },
         {
             type: 'list',
             name: 'newrole',
             message: 'What is their new role?',
-            choices: [],
+            choices: roleChoices(),
         }
     ])
 }
