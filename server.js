@@ -1,7 +1,11 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const employeeArr = [];
+const none = {
+    value: "null",
+    title: "None"
+};
+const employeeArr = [none.title];
 const departmentArr = [];
 const roleArr = [];
 
@@ -31,7 +35,8 @@ const viewOptions = () => {
                 'Add department',
                 'Add role',
                 'Add employee',
-                'Update employee infomation',
+                'Update employee',
+                'delete employee information'
             ]
         }
     ])
@@ -55,8 +60,11 @@ const viewOptions = () => {
                 case "Add employee":
                     addEmployee();
                     break;
-                case "Update employee information":
+                case "Update employee":
                     updateEmployee();
+                    break;
+                case "delete employee information":
+                    deleteEmployee();
                     break;
             }
         })
@@ -66,7 +74,7 @@ const departmentChoices = () => {
     const sql = `SELECT id AS value, name FROM department;`;
 
     db.query(sql, (err, res) => {
-        if (err){
+        if (err) {
             throw err;
         }
 
@@ -74,10 +82,10 @@ const departmentChoices = () => {
 
             if (!departmentArr.includes(res[i].name)) {
                 departmentArr.push(res[i].name);
-            }; 
+            };
         }
     });
-     return departmentArr
+    return departmentArr
 
 };
 
@@ -85,11 +93,11 @@ const employeeChoices = () => {
     const sql = `SELECT id AS value, CONCAT(first_name, " ", last_name) AS name FROM employee`;
 
     db.query(sql, (err, res) => {
-        if (err){
+        if (err) {
             throw err;
         }
 
-        
+
         for (var i = 0; i < res.length; i++) {
 
             if (!employeeArr.includes(res[i].name)) {
@@ -106,7 +114,7 @@ const roleChoices = () => {
     const sql = `SELECT id AS value, title FROM role;`;
 
     db.query(sql, (err, res) => {
-        if (err){
+        if (err) {
             throw err;
         }
 
@@ -174,32 +182,32 @@ FROM employee
 };
 
 const addDepartment = () => {
-    inquirer.prompt ([
+    inquirer.prompt([
         {
             type: 'input',
             name: 'department',
             message: 'Enter new department',
         }
     ])
-    .then((answers) => {
-        const mysql = `INSERT INTO department (name)
+        .then((answers) => {
+            const mysql = `INSERT INTO department (name)
         VALUES (?)`;
-        const params = answers.department;
-        
-    db.query(mysql, params, (err, rows) => {
-        if (err){
-            return console.log(err)
-        };
+            const params = answers.department;
 
-        console.table(rows);
+            db.query(mysql, params, (err, rows) => {
+                if (err) {
+                    return console.log(err)
+                };
 
-        viewOptions();
-    });
-    });
+                console.table(rows);
+
+                viewOptions();
+            });
+        });
 };
 
 const addRole = () => {
-    inquirer.prompt ([
+    inquirer.prompt([
         {
             type: 'input',
             name: 'role',
@@ -217,23 +225,24 @@ const addRole = () => {
             choices: departmentChoices(),
         }
     ])
-    .then((answers) => {
-        const mysql = `INSERT INTO role (title, salary, department_id)
+        .then((answers) => {
+            const mysql = `INSERT INTO role (title, salary, department_id)
         VALUES(?, ?, ?)`;
-        const params = [answers.role, answers.salary, answers.department_id]
-        
-    db.query(mysql, params, (err, rows) => {
-        if (err) return console.log(err);
-        console.table(rows);
-        console.log('Role Added')
-        viewRoles()
-        viewOptions();
-    })
-    })
+            const departmentID = departmentChoices().indexOf(answers.department) + 1;
+            const params = [answers.role, answers.salary, departmentID]
+
+            db.query(mysql, params, (err, rows) => {
+                if (err) return console.log(err);
+                console.table(rows);
+                console.log('Role Added')
+                viewRoles()
+                viewOptions();
+            })
+        });
 };
 
 const addEmployee = () => {
-    inquirer.prompt ([
+    inquirer.prompt([
         {
             type: 'input',
             name: 'firstname',
@@ -258,10 +267,44 @@ const addEmployee = () => {
 
         }
     ])
+        .then((answers) => {
+            const mysql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+        VALUES(?, ?, ?, ?)`;
+            const roleID = roleChoices().indexOf(answers.role) + 1;
+            // const managerID = employeeChoices().indexOf(answers.manager);
+            const managerID = (answers) => {
+
+
+                const manager = employeeChoices().indexOf(answers.manager);
+
+                if (manager === 0) {
+                    return null;
+                }
+
+
+                return manager;
+            };
+
+            const params = [answers.firstname, answers.lastname, roleID, managerID(answers)];
+
+            db.query(mysql, params, (err, rows) => {
+                if (err) return console.log(err);
+                console.table(rows);
+                console.log('Employee Added')
+                viewEmployees()
+                viewOptions();
+            })
+        });
 };
 
 const updateEmployee = () => {
-    inquirer.prompt ([
+    inquirer.prompt([
+        {
+            type: "confirm",
+            name: "confirm",
+            message: "Are you sure you want to update?",
+        },
+
         {
             type: 'list',
             name: 'employee',
@@ -270,11 +313,62 @@ const updateEmployee = () => {
         },
         {
             type: 'list',
-            name: 'newrole',
+            name: 'role',
             message: 'What is their new role?',
             choices: roleChoices(),
+            when: (answers) => answers.employee !== "None"
         }
     ])
-}
+
+        .then((answers) => {
+            const mysql = ` UPDATE employee 
+                            SET role_id = ? 
+                            WHERE id = ?`;
+            const employeeID = employeeChoices().indexOf(answers.employee);
+            const roleID = roleChoices().indexOf(answers.role) + 1;
+            const params = [roleID, employeeID]
+
+            db.query(mysql, params, (err, rows) => {
+                if (err) return console.log(err);
+                console.table(rows);
+                viewEmployees()
+                viewOptions();
+            })
+        });
+
+};
+
+
+// const deleteEmployee = () => {
+//     inquirer.prompt([
+//         {
+//             type: "confirm",
+//             name: "confirm",
+//             message: "Are you sure you want to delete?",
+//         },
+//         {
+//             type: 'list',
+//             name: 'employee',
+//             message: 'Which employee would you like to delete?',
+//             choices: employeeChoices(),
+//         }
+//     ])
+//     .then((answers) => {
+//         const mysql = `DELETE FROM employee WHERE id = ?`;
+//         const params = employeeChoices().indexOf(answers.employee) + 1;
+        
+
+//         db.query(mysql, params, (err, rows) => {
+//             if (err) return console.log(err);
+//             console.table(rows);
+//             viewEmployees()
+//             viewOptions();
+//         })
+//     });
+// }
+
+
+
+
 
 viewOptions()
