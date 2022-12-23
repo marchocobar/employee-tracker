@@ -5,7 +5,7 @@ SELECT
     role.id, 
     role.title,
     role.salary,
-    department.name AS department 
+    department.name AS Department 
 FROM role
 INNER JOIN department
     ON role.department_id = department.id;
@@ -15,7 +15,7 @@ SELECT
     employee.first_name,
     employee.last_name,
     role.title,
-    department.name AS Department,
+    department.name AS department,
     role.salary,
     CONCAT(Manager.first_name, ' ', Manager.last_name) AS manager
 FROM employee
