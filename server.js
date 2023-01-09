@@ -239,10 +239,23 @@ const addRole = () => {
 
             })
         }).then(() => {
-            console.log('Role Added')
-            viewRoles()
-            viewOptions();
-        });
+            const mysql = `SELECT 
+            role.id, 
+            role.title,
+            role.salary,
+            department.name AS Department 
+            FROM role
+            INNER JOIN department
+            ON role.department_id = department.id`;
+
+            db.promise().query(mysql).then(([rows,fields]) => {
+
+                console.table(rows);
+            }).catch(console.log);
+}).then(() => {
+    viewOptions();
+});
+
 };
 
 const addEmployee = () => {
@@ -301,10 +314,30 @@ const addEmployee = () => {
             });
 
         }).then(() => {
-            console.log('Employee Added');
-            viewEmployees();
+            const mysql = `SELECT
+                employee.id,
+                employee.first_name,
+                employee.last_name,
+                role.title,
+                department.name AS department,
+                role.salary,
+                CONCAT(Manager.first_name, ' ', Manager.last_name) AS manager
+            FROM employee
+                LEFT JOIN role
+                    ON employee.role_id = role.id
+                LEFT JOIN department
+                    ON role.department_id = department.id
+                LEFT JOIN employee Manager
+                    ON employee.manager_id = Manager.id;`;
+
+                    db.promise().query(mysql).then(([rows,fields]) => {
+
+                        console.table(rows);
+                    }).catch(console.log);
+        }).then(() => {
             viewOptions();
         });
+
 
 };
 
@@ -347,9 +380,30 @@ const updateEmployee = () => {
 
             })
         }).then(() => {
-            viewEmployees()
+            const mysql = `SELECT
+                employee.id,
+                employee.first_name,
+                employee.last_name,
+                role.title,
+                department.name AS department,
+                role.salary,
+                CONCAT(Manager.first_name, ' ', Manager.last_name) AS manager
+            FROM employee
+                LEFT JOIN role
+                    ON employee.role_id = role.id
+                LEFT JOIN department
+                    ON role.department_id = department.id
+                LEFT JOIN employee Manager
+                    ON employee.manager_id = Manager.id;`;
+            
+                    db.promise().query(mysql).then(([rows,fields]) => {
+
+                        console.table(rows);
+                    }).catch(console.log);
+        }).then(() => {
             viewOptions();
         });
+
 
 };
 
