@@ -232,12 +232,16 @@ const addRole = () => {
             const params = [answers.role, answers.salary, departmentID]
 
             db.query(mysql, params, (err, rows) => {
-                if (err) return console.log(err);
+                if (err) {
+                    return console.log(err)
+                };
                 console.table(rows);
-                console.log('Role Added')
-                viewRoles()
-                viewOptions();
+
             })
+        }).then(() => {
+            console.log('Role Added')
+            viewRoles()
+            viewOptions();
         });
 };
 
@@ -288,13 +292,20 @@ const addEmployee = () => {
             const params = [answers.firstname, answers.lastname, roleID, managerID(answers)];
 
             db.query(mysql, params, (err, rows) => {
-                if (err) return console.log(err);
+                if (err) {
+                    return console.log(err)
+                };
                 console.table(rows);
-                console.log('Employee Added')
-                viewEmployees()
-                viewOptions();
-            })
+
+
+            });
+
+        }).then(() => {
+            console.log('Employee Added');
+            viewEmployees();
+            viewOptions();
         });
+
 };
 
 const updateEmployee = () => {
@@ -329,11 +340,15 @@ const updateEmployee = () => {
             const params = [roleID, employeeID]
 
             db.query(mysql, params, (err, rows) => {
-                if (err) return console.log(err);
+                if (err) {
+                    return console.log(err)
+                };
                 console.table(rows);
-                viewEmployees()
-                viewOptions();
+
             })
+        }).then(() => {
+            viewEmployees()
+            viewOptions();
         });
 
 };
@@ -356,7 +371,7 @@ const updateEmployee = () => {
 //     .then((answers) => {
 //         const mysql = `DELETE FROM employee WHERE id = ?`;
 //         const params = employeeChoices().indexOf(answers.employee) + 1;
-        
+
 
 //         db.query(mysql, params, (err, rows) => {
 //             if (err) return console.log(err);
