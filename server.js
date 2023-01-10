@@ -63,9 +63,9 @@ const viewOptions = () => {
                 case "Update employee":
                     updateEmployee();
                     break;
-                case "delete employee information":
-                    deleteEmployee();
-                    break;
+                // case "delete employee information":
+                //     deleteEmployee();
+                //     break;
             }
         })
 };
@@ -199,7 +199,7 @@ const addDepartment = () => {
                     return console.log(err)
                 };
 
-                console.table(rows);
+                // console.table(rows);
 
                 viewOptions();
             });
@@ -235,7 +235,7 @@ const addRole = () => {
                 if (err) {
                     return console.log(err)
                 };
-                console.table(rows);
+                // console.table(rows);
 
             })
         }).then(() => {
@@ -308,7 +308,7 @@ const addEmployee = () => {
                 if (err) {
                     return console.log(err)
                 };
-                console.table(rows);
+                // console.table(rows);
 
 
             });
@@ -376,7 +376,7 @@ const updateEmployee = () => {
                 if (err) {
                     return console.log(err)
                 };
-                console.table(rows);
+                // console.table(rows);
 
             })
         }).then(() => {
