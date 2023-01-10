@@ -11,7 +11,7 @@ SO THAT I can organize and plan my business
 
 
 ## Usage
- [Video]()
+ [Video](https://drive.google.com/file/d/19mioKMnx5cUqttmvYoAX2QxEjaTSGwMe/view)
 
 
 ## Installation
